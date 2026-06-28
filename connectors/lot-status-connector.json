@@ -1,0 +1,23 @@
+{
+  "name": "lot-status-connector",
+  "config": {
+    "connector.class": "io.debezium.connector.mysql.MySqlConnector",
+    "database.hostname": "mysql",
+    "database.port": "3306",
+    "database.user": "debezium",
+    "database.password": "debezium",
+    "database.server.id": "1",
+    "topic.prefix": "mes",
+    "database.include.list": "mes_db",
+    "table.include.list": "mes_db.lot_status",
+
+    "schema.history.internal.kafka.bootstrap.servers": "kafka:29092",
+    "schema.history.internal.kafka.topic": "schema-changes.mes_db",
+
+    "include.schema.changes": "true",
+
+    "topic.creation.default.partitions": "1",
+    "topic.creation.default.replication.factor": "1"
+  }
+}
+
