@@ -10,40 +10,53 @@ This project rebuilds that shape with modern tooling I haven't used professional
 
 ## Architecture
 
-        lot_status table (MySQL)  <- simulates the MES/DB2 source of truth
-                |
-        Debezium (CDC, watches MySQL binlog)
-                |
-        Kafka topic: lot_events
-                |
-    ------------+----------
-    |                     |
-    v                     v
- RTD consumer          ERP consumer
- (Java->MySQL)        (Java->MongoDB)
-    |                     |
-    v                     v
-   MySQL               MongoDB
-    \                     /
-     v                   v
-        Redis cache (current lot status)
-               |
-               v
-               Laravel API (GET /lot/{id}/status, GET /sync/health)
+```text
+                 lot_status table (MySQL)
+          (Simulates the MES/DB2 source of truth)
+                          |
+                          |
+             Debezium (CDC - watches MySQL binlog)
+                          |
+                          |
+                Kafka Topic: lot_events
+                          |
+             +------------+------------+
+             |                         |
+             |                         |
+             v                         v
+      RTD Consumer              ERP Consumer
+      (Java → MySQL)          (Java → MongoDB)
+             |                         |
+             v                         v
+          MySQL                    MongoDB
+             \                         /
+              \                       /
+               +---------+-----------+
+                         |
+                         v
+          Redis Cache (Current Lot Status)
+                         |
+                         v
+                  Laravel REST API
+          ┌──────────────────────────────────┐
+          │ GET /lot/{id}/status             │
+          │ GET /sync/health                 │
+          └──────────────────────────────────┘
+```
 
 
 ## Steps
 
-- ** 1**: `lot_status` MySQL table + Java simulator generating lot
+  1.  `lot_status` MySQL table + Java simulator generating lot
   state changes with occasional bursts. Debezium connector watching the table,
   streaming changes into Kafka topic `mes.mes_db.lot_status`.
-- ** 2**: RTD consumer (Java -> MySQL) and ERP consumer (Java -> MongoDB), both
+  2.  RTD consumer (Java -> MySQL) and ERP consumer (Java -> MongoDB), both
   idempotent on lot_id. Mid-run: add a new column to `lot_status` and show both
   consumers see it automatically.
-- ** 3**: Redis cache-aside layer for "current lot status" reads. A deliberately
+  3.  Redis cache-aside layer for "current lot status" reads. A deliberately
   slow third consumer simulating a downstream system, to produce a real lag/backpressure
   story during a burst.
-- ** 4**: Laravel API (`GET /lot/{id}/status`, `GET /sync/health`). Optional
+  4.  Laravel API (`GET /lot/{id}/status`, `GET /sync/health`). Optional
   Prometheus + Grafana dashboard of the burst.
 
 ## Tech stack

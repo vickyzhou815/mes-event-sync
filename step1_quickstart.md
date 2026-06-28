@@ -45,6 +45,7 @@ java -cp target/lot-simulator-1.0.0.jar com.practice.simulator.LotStatusSimulato
 Should see lines like: lot=LOT-00042 -> state=complete tool=TOOL-07
 scrolling by, with a burst window roughly every 45-60 seconds.
 
+(mvn clean package actually produces: a file at simulator/target/lot-simulator-1.0.0.jar — that's the "build output," a single runnable Java program with the MySQL driver bundled inside it. That's the exact file java -cp target/lot-simulator-1.0.0.jar ... command is running right now.)
 
 ## 4. Watch the CDC events arrive in Kafka
 
