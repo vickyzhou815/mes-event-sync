@@ -6,6 +6,7 @@ This starts zookeeper, kafka, connect, mysql, mongo, and redis. Give it 30-60 se
 
 be more specific:
  - docker compose up -d zookeeper kafka
+   Kafka needs somewhere to store a small amount of coordination information — things like "which servers exist in this Kafka cluster," "who's currently the leader for this topic," that kind of bookkeeping. Historically, Kafka used a separate tool called Zookeeper to store and manage that coordination data. So in older Kafka setups (and the Docker images we're using), Zookeeper is a required companion service that runs alongside Kafka — Kafka itself doesn't store that bookkeeping internally, it asks Zookeeper. (older versions)
  - docker compose up -d mysql  (stop local mysql first, if running)
    then check: docker exec -it mes-event-sync-mysql-1 mysql -uroot -ppractice mes_db -e "SHOW TABLES; SELECT User, Host FROM mysql.user WHERE User='debezium';"
  - docker compose up -d connect
